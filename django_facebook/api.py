@@ -2,7 +2,7 @@ from django.forms.util import ValidationError
 from django.utils import simplejson as json
 from django_facebook import settings as facebook_settings
 from django_facebook.utils import mass_get_or_create, cleanup_oauth_url,\
-    get_profile_class
+    get_profile_class, get_fb_profile
 from open_facebook.exceptions import OpenFacebookException
 import datetime
 import logging
@@ -176,7 +176,7 @@ def get_facebook_graph(request=None, access_token=None, redirect_uri=None, raise
                             return None
             elif request.user.is_authenticated():
                 #support for offline access tokens stored in the users profile
-                profile = request.user.get_profile()
+                profile = get_fb_profile(request.user)
                 access_token = getattr(profile, 'access_token', None)
                 if not access_token:
                     if raise_:
@@ -208,7 +208,7 @@ def _add_current_user_id(graph, user):
         graph.current_user_id = None
 
     if user.is_authenticated() and graph:
-        profile = user.get_profile()
+        profile = get_fb_profile(user)
         facebook_id = getattr(profile, 'facebook_id', None)
         if facebook_id:
             graph.current_user_id = facebook_id

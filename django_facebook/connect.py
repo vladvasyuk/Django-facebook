@@ -9,7 +9,7 @@ from django_facebook import exceptions as facebook_exceptions, \
     settings as facebook_settings, signals
 from django_facebook.api import get_facebook_graph, FacebookUserConverter
 from django_facebook.utils import get_registration_backend, get_form_class, \
-    get_profile_class, to_bool
+    get_profile_class, to_bool, get_fb_profile
 from random import randint
 import logging
 import sys
@@ -70,7 +70,7 @@ def connect_user(request, access_token=None, facebook_graph=None):
             # email address?
             # It is after all quite common to use email addresses for usernames
             update = getattr(auth_user, 'fb_update_required', False)
-            if not auth_user.get_profile().facebook_id:
+            if not get_fb_profile(auth_user).facebook_id:
                 update = True
             #login the user
             user = _login_user(request, facebook, auth_user, update=update)
@@ -154,7 +154,7 @@ def _update_access_token(user, graph):
     '''
     Conditionally updates the access token in the database
     '''
-    profile = user.get_profile()
+    profile = get_fb_profile(user)
     #store the access token for later usage if the profile model supports it
     if hasattr(profile, 'access_token'):
         # update if not equal to the current token
@@ -281,7 +281,7 @@ def _update_user(user, facebook, overwrite=True):
     facebook_fields = ['facebook_name', 'facebook_profile_url', 'gender',
                        'date_of_birth', 'about_me', 'website_url', 'first_name', 'last_name']
     user_dirty = profile_dirty = False
-    profile = user.get_profile()
+    profile = get_fb_profile(user)
 
     signals.facebook_pre_update.send(sender=get_profile_class(),
                                      profile=profile, facebook_data=facebook_data)

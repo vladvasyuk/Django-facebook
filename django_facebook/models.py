@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models.base import ModelBase
 from django_facebook import model_managers, settings as facebook_settings
 from open_facebook.utils import json, camel_to_underscore
+from django_facebook.utils import get_fb_profile
 import datetime
 import logging
 import os
@@ -179,12 +180,12 @@ class FacebookProfile(FacebookProfileModel):
     '''
     Not abstract version of the facebook profile model
     Use this by setting
-    AUTH_PROFILE_MODULE = 'django_facebook.FacebookProfile'
+    FACEBOOK_PROFILE_MODULE = 'django_facebook.FacebookProfile'
     '''
     user = models.OneToOneField('auth.User')
 
 
-if settings.AUTH_PROFILE_MODULE == 'django_facebook.FacebookProfile':
+if settings.FACEBOOK_PROFILE_MODULE == 'django_facebook.FacebookProfile':
     '''
     If we are using the django facebook profile model, create the model
     and connect it to the user create signal
@@ -349,7 +350,7 @@ class OpenGraphShare(BaseModel):
 
     def save(self, *args, **kwargs):
         if self.user and not self.facebook_user_id:
-            self.facebook_user_id = self.user.get_profile().facebook_id
+            self.facebook_user_id = get_fb_profile(self.user).facebook_id
         return models.Model.save(self, *args, **kwargs)
 
     def send(self, graph=None):
@@ -359,7 +360,7 @@ class OpenGraphShare(BaseModel):
         self.save()
 
         #see if the graph is enabled
-        profile = self.user.get_profile()
+        profile = get_fb_profile(self.user)
         graph = graph or profile.get_offline_graph()
         user_enabled = profile.facebook_open_graph and self.facebook_user_id
 
@@ -446,7 +447,7 @@ class FacebookInvite(CreatedAtAbstractBase):
     def resend(self, graph=None):
         from django_facebook.invite import post_on_profile
         if not graph:
-            graph = self.user.get_profile().get_offline_graph()
+            graph = get_fb_profile(self.user).get_offline_graph()
             if not graph:
                 return
         facebook_id = self.user_invited

@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django_facebook import signals
 from django_facebook.forms import FacebookRegistrationFormUniqueEmail
 from django_facebook import settings as facebook_settings
+from django_facebook.utils import get_fb_profile
 
 
 class NooptRegistrationBackend(object):
@@ -33,7 +34,7 @@ class NooptRegistrationBackend(object):
         '''
         Handled by the Django Facebook app
         '''
-        response = user.get_profile().post_facebook_registration(request)
+        response = get_fb_profile(user).post_facebook_registration(request)
         return response
 
     def post_activation_redirect(self, request, user):

@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.shortcuts import render_to_response
 from django.contrib.auth import models as auth_models
 from django import template
+from django_facebook.utils import get_fb_profile
 from collections import defaultdict
 import logging
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ def retry_facebook_invite(modeladmin, request, queryset):
         user_invites[invite.user].append(invite)
 
     for user, invites in user_invites.items():
-        profile = user.get_profile()
+        profile = get_fb_profile(self.user)
         graph = profile.get_offline_graph()
         if not graph:
             error_message = 'couldnt connect to the graph, user access token is %s' % profile.access_token

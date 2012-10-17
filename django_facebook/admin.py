@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django_facebook import admin_actions
 from django_facebook import models
-
+from django_facebook.utils import get_fb_profile
 
 class FacebookUserAdmin(admin.ModelAdmin):
     list_display = ('user_id', 'name', 'facebook_id',)
@@ -53,7 +53,7 @@ def facebook_profile(open_graph_share):
     with user id and image and link to facebook :)
     '''
     user = open_graph_share.user
-    profile = user.get_profile()
+    profile = get_fb_profile(user)
     facebook_id = profile.facebook_id
     facebook_url = 'http://www.facebook.com/%s/' % facebook_id
     link = '<p><a href="%s"><img src="http://graph.facebook.com/%s/picture/?type=large" width="100px" style="float:left"/>%s</a><br/></p>' % (facebook_url, facebook_id, facebook_id)
@@ -71,7 +71,7 @@ class OpenGraphShareAdmin(admin.ModelAdmin):
                admin_actions.retry_open_graph_share_for_user]
 
 
-if settings.AUTH_PROFILE_MODULE == 'django_facebook.FacebookProfile':
+if settings.FACEBOOK_PROFILE_MODULE == 'django_facebook.FacebookProfile':
     admin.site.register(models.FacebookProfile, FacebookProfileAdmin)
 
 admin.site.register(models.FacebookUser, FacebookUserAdmin)

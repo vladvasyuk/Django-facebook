@@ -15,7 +15,7 @@ from django_facebook.api import get_persistent_graph, FacebookUserConverter, \
     require_persistent_graph
 from django_facebook.connect import CONNECT_ACTIONS, connect_user
 from django_facebook.utils import next_redirect, get_registration_backend,\
-    replication_safe, to_bool, error_next_redirect
+    replication_safe, to_bool, error_next_redirect,get_fb_profile
 from django_facebook.decorators import (facebook_required,
                                         facebook_required_lazy)
 from open_facebook.utils import send_warning
@@ -187,7 +187,7 @@ def disconnect(request):
     if request.method == 'POST':
         messages.info(
             request, _("You have disconnected your Facebook profile."))
-        profile = request.user.get_profile()
+        profile = get_fb_profile(request.user)
         profile.disconnect_facebook()
         profile.save()
     response = next_redirect(request)
