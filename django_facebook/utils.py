@@ -7,6 +7,7 @@ from django_facebook import settings as facebook_settings
 from django.utils.encoding import iri_to_uri
 from django.template.loader import render_to_string
 import gc
+from django.contrib.auth.models import User
 
 
 logger = logging.getLogger(__name__)
@@ -179,6 +180,16 @@ def get_profile_class():
 
     return models.get_model(app_label, model)
 
+def get_fb_profile(usr):
+    profile_class = get_profile_class()
+    try:
+        usr = User.objects.get(id = usr.id)
+    except User.DoesNotExist:
+        return None
+    try:
+        return profile_class.objects.get(user=usr)
+    except profile_class.DoesNotExist:
+        return profile_class.objects.create(user=usr)
 
 @transaction.commit_on_success
 def mass_get_or_create(model_class, base_queryset, id_field, default_dict,
