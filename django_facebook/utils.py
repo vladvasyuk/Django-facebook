@@ -19,7 +19,7 @@ def clear_persistent_graph_cache(request):
     request.facebook = None
     request.session.delete('graph')
     if request.user.is_authenticated():
-        profile = request.user.get_profile()
+        profile = get_fb_profile(request.user)
         profile.clear_access_token()
 
 
@@ -174,7 +174,7 @@ def next_redirect(request, default='/', additional_params=None,
 
 
 def get_profile_class():
-    profile_string = settings.AUTH_PROFILE_MODULE
+    profile_string = settings.FACEBOOK_PROFILE_MODULE
     app_label, model = profile_string.split('.')
 
     return models.get_model(app_label, model)
