@@ -1,9 +1,8 @@
 from django.http import QueryDict, HttpResponse, HttpResponseRedirect
 from django.conf import settings
-from django.db import models, transaction
+from django.db import transaction
 import logging
 import re
-from django_facebook import settings as facebook_settings
 from django.utils.encoding import iri_to_uri
 from django.template.loader import render_to_string
 import gc
@@ -178,7 +177,9 @@ def get_profile_class():
     profile_string = settings.FACEBOOK_PROFILE_MODULE
     app_label, model = profile_string.split('.')
 
-    return models.get_model(app_label, model)
+    app = __import__(app_label)
+
+    return getattr(app.models,model)
 
 def get_fb_profile(usr):
     profile_class = get_profile_class()
@@ -253,6 +254,8 @@ def get_registration_backend():
     '''
     Ensures compatability with the new and old version of django registration
     '''
+    from django_facebook import settings as facebook_settings
+
     backend = None
     backend_class = None
 
