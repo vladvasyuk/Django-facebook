@@ -174,12 +174,12 @@ def next_redirect(request, default='/', additional_params=None,
 
 
 def get_profile_class():
-    profile_string = settings.FACEBOOK_PROFILE_MODULE
-    app_label, model = profile_string.split('.')
+    # profile_string = settings.FACEBOOK_PROFILE_MODULE
+    # app_label, model = profile_string.split('.')
 
-    app = __import__(app_label)
+    # app = __import__(app_label)
 
-    return getattr(app.models,model)
+    return __import__('django_facebook').models.FacebookProfile
 
 def get_fb_profile(usr):
     profile_class = get_profile_class()
