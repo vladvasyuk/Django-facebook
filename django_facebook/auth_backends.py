@@ -25,15 +25,10 @@ class FacebookBackend(backends.ModelBackend):
                 profile = profiles[0] if profiles else None
             if profile is None and facebook_email:
                 try:
-                    profiles = profile_query.filter(
-                        user__email__iexact=facebook_email)[:1]
-                    profile = profiles[0] if profiles else None
-                except DatabaseError:
-                    try:
-                        user = models.User.objects.get(email=facebook_email)
-                    except models.User.DoesNotExist:
-                        user = None
-                    profile = get_fb_profile(user) if user else None
+                    user = models.User.objects.get(email=facebook_email)
+                except models.User.DoesNotExist:
+                    user = None
+                profile = get_fb_profile(user) if user else None
 
             if profile:
                 # populate the profile cache while we're getting it anyway
